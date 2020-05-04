@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothLeScanner mBluetoothLeScanner;
     // scan handler
     private Handler scanHandler;
+    private Handler linkHandler;
 
     public static String SERVICE_STRING = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
     public static UUID UUID_TDCS_SERVICE = UUID.fromString(SERVICE_STRING);
@@ -74,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
     public static String CHARACTERISTIC_RESPONSE_STRING = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
     public static UUID UUID_CTRL_RESPONSE = UUID.fromString(CHARACTERISTIC_RESPONSE_STRING);
     public final static String MAC_ADDR = "E7:34:CC:2B:4A:7F";
+
+    private BluetoothGatt mGatt;
+    private boolean isConnected = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    Start BLE scan
-     */
+        Start BLE scan
+         */
     private void startScan(View v) {
         tv_status_.setText("Scanning...");
         // check ble adapter and ble enabled
@@ -236,14 +244,49 @@ public class MainActivity extends AppCompatActivity {
          */
         private void addScanResult(ScanResult result) {
             // get scanned device
-            BluetoothDevice device = result.getDevice();
+            BluetoothDevice bleDevice = result.getDevice();
             // get scanned device MAC address
-            String device_address = device.getAddress();
+            String device_address = bleDevice.getAddress();
             // add the device to the result list
-            cb_scan_results_.put(device_address, device);
+            cb_scan_results_.put(device_address, bleDevice);
             // log
-            Log.d(TAG, "scan results device: " + device);
+            Log.d(TAG, "scan results device: " + bleDevice);
             tv_status_.setText("add scanned device: " + device_address);
+
+            connectDevice(bleDevice);
+        }
+    }
+
+    private void connectDevice(BluetoothDevice bleDevice) {
+        GattClientCallback gattClientCallback = new GattClientCallback();
+        mGatt = bleDevice.connectGatt(this, false, gattClientCallback);
+    }
+
+    private class GattClientCallback extends BluetoothGattCallback {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+            if (status == BluetoothGatt.GATT_FAILURE) {
+                disconnectGattServer();
+                return;
+            } else if (status != BluetoothGatt.GATT_SUCCESS) {
+                disconnectGattServer();
+                return;
+            }
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                isConnected = true;
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                disconnectGattServer();
+            }
+        }
+
+        public void disconnectGattServer() {
+            isConnected = false;
+            if (mGatt != null) {
+                mGatt.disconnect();
+                mGatt.close();
+            }
         }
     }
 }
