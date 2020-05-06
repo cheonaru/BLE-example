@@ -62,7 +62,7 @@
 
 
         <Button
-            android:id="@+id/btn_scan"
+            android:id="@+id/btn_start_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Start Scan"
@@ -70,28 +70,20 @@
             tools:layout_editor_absoluteY="179dp" />
 
         <Button
-            android:id="@+id/btn_stop"
+            android:id="@+id/btn_stop_scan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stop Connection"
+            android:text="Stop Scan"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="114dp" />
+        <Button
+            android:id="@+id/btn_stop_conn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop Conn"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="114dp" />
 
-        <Button
-            android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send Data"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="257dp" />
-
-        <Button
-            android:id="@+id/btn_show"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Show Paired Devices"
-            tools:layout_editor_absoluteX="108dp"
-            tools:layout_editor_absoluteY="179dp" />
 
     </LinearLayout>
 
